@@ -12,8 +12,6 @@ public class OkHttpUtil {
 
     static {
         if (okHttpClient == null) {
-
-
             okHttpClient = new OkHttpClient();
         }
     }
@@ -24,6 +22,7 @@ public class OkHttpUtil {
 
         @Override
         protected String doInBackground(String... params) {
+
             return null;
         }
 

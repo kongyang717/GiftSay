@@ -87,6 +87,12 @@ public class GuideHomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_guide_home, container, false);
         ButterKnife.bind(this, view);
+        mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                return true;
+            }
+        });
         return view;
     }
 
@@ -112,6 +118,9 @@ public class GuideHomeFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mExpandableListView.setAdapter(mAdapter);
+        for(int i=0;i<mListGroupIndex.size();i++){
+            mExpandableListView.expandGroup(i);
+        }
     }
 
     @Override
