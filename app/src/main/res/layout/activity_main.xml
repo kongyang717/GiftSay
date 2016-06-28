@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fag_home"
-        android:name="com.qianfeng.android.viewbinddemo.fragment.HomeFragment"
+        android:name="com.qianfeng.android.viewbinddemo.fragment.GuideFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>
