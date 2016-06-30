@@ -4,11 +4,9 @@
     android:layout_height="match_parent"
     tools:context="com.qianfeng.android.viewbinddemo.fragment.GuideHomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <ExpandableListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/elv_guide_home"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:groupIndicator="@null"/>
+        android:layout_height="match_parent" />
 
 </FrameLayout>

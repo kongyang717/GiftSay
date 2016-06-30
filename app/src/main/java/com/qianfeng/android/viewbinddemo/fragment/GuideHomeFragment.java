@@ -1,21 +1,20 @@
 package com.qianfeng.android.viewbinddemo.fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.qianfeng.android.viewbinddemo.R;
+import com.qianfeng.android.viewbinddemo.utils.OkHttpUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,212 +25,100 @@ import butterknife.ButterKnife;
  */
 public class GuideHomeFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
-    @BindView(R.id.elv_guide_home)
-    ExpandableListView mExpandableListView;
-    private OnFragmentInteractionListener mListener;
-    private MyAdapter mAdapter;
-    private List<String> mListGroupIndex;
-    private HashMap<String, List<String>> mHashMap;
-    private Context mContext;
-
-    public GuideHomeFragment() {
-        // Required empty public constructor
-    }
+    public static final int HEAD_VIEW = 0;
+    public static final int ITEM_VIEW = 1;
 
     /**
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GuideHomeFag.
+     * fragment 主控件，包含了整个界面的内容（头部View和List列表）
      */
-    // TODO: Rename and change types and number of parameters
-    public static GuideHomeFragment newInstance(String param1, String param2) {
-        GuideHomeFragment fragment = new GuideHomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    @BindView(R.id.elv_guide_home)
+    RecyclerView mRecyclerView;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        mListGroupIndex = new ArrayList<>();
-        mHashMap = new HashMap<>();
-        mAdapter = new MyAdapter();
-        initData();
-    }
-
-    private void initData() {
-        for (int i = 0; i < 10; i++) {
-            List<String> list = new ArrayList<>();
-            mHashMap.put(i + "", list);
-            mListGroupIndex.add(i + "");
-            for (int j = 0; j < 5; j++) {
-                list.add(i + j + "");
-            }
-        }
-    }
+    private List<String> mList = new ArrayList<>();
+    private Context mContext;
+    private MyAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_guide_home, container, false);
         ButterKnife.bind(this, view);
-        mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                return true;
-            }
-        });
         return view;
-    }
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mContext = context;
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mExpandableListView.setAdapter(mAdapter);
-        for(int i=0;i<mListGroupIndex.size();i++){
-            mExpandableListView.expandGroup(i);
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+        mContext = getContext();
+        //创建视图管理器
+        LinearLayoutManager llManager = new LinearLayoutManager(mContext);
+        //创建适配器
+        mAdapter = new MyAdapter();
+        //设置视图管理器
+        mRecyclerView.setLayoutManager(llManager);
+        //设置适配器
+        mRecyclerView.setAdapter(mAdapter);
+        //获取数据
+        refreshData();
     }
 
     /**
-     *
+     * 布局初始化完毕，开始刷新数据
      */
-    public interface OnFragmentInteractionListener {
-
-        void onFragmentInteraction(Uri uri);
+    private void refreshData() {
+        //OkHttpUtil.newInstance().url();
     }
 
-    class MyAdapter extends BaseExpandableListAdapter {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
-        @Override
-        public int getGroupCount() {
-            return mListGroupIndex == null ? 0 : mListGroupIndex.size();
-        }
+        int viewType;
+        @BindView(R.id.tv_guide_home_time)
+        TextView mTextView;
 
-        @Override
-        public int getChildrenCount(int groupPosition) {
-            if (mHashMap == null) {
-                return 0;
-            }
-            List<String> list = mHashMap.get(mListGroupIndex.get(groupPosition));
-            return list.size();
-        }
-
-        @Override
-        public Object getGroup(int groupPosition) {
-            return mListGroupIndex.get(groupPosition);
-        }
-
-        @Override
-        public Object getChild(int groupPosition, int childPosition) {
-            if (mHashMap == null) {
-                return 0;
-            }
-            List<String> list = mHashMap.get(mListGroupIndex.get(groupPosition));
-            return list.get(childPosition);
-        }
-
-        @Override
-        public long getGroupId(int groupPosition) {
-            return 0;
-        }
-
-        @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return 0;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return false;
-        }
-
-        class GroupViewHolder {
-            @BindView(R.id.tv_guide_home_time)
-            TextView tvTime;
-
-            GroupViewHolder(View view) {
-                view.setTag(this);
-                ButterKnife.bind(this, view);
+        public MyViewHolder(View itemView, int viewType) {
+            super(itemView);
+            this.viewType=viewType;
+            if (viewType == ITEM_VIEW) {
+                ButterKnife.bind(this, itemView);
             }
         }
-        @Override
-        public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-            GroupViewHolder childViewHolder = null;
-            if (convertView == null) {
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.elv_item_time, null);
-                childViewHolder = new GroupViewHolder(convertView);
-            }else{
-                childViewHolder= (GroupViewHolder) convertView.getTag();
-            }
-            childViewHolder.tvTime.setText((String) getGroup(groupPosition));
+    }
 
-            return convertView;
+    class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
+
+        @Override
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater from = LayoutInflater.from(mContext);
+            View view = null;
+            //如果viewType是头部视图类型就返回头部视图
+            if (viewType == HEAD_VIEW) {
+                view = from.inflate(R.layout.head_guide, parent,false);
+            } else if (viewType == ITEM_VIEW) {
+                view = from.inflate(R.layout.item_guide,null);
+            }
+            return new MyViewHolder(view, viewType);
         }
 
-        class ChildViewHolder {
-            @BindView(R.id.tv_guide_home_time)
-            TextView tvTime;
-
-            ChildViewHolder(View view) {
-                view.setTag(this);
-                ButterKnife.bind(this, view);
+        @Override
+        public int getItemViewType(int position) {
+            if (position == 0) {
+                return HEAD_VIEW;
+            } else {
+                return ITEM_VIEW;
             }
         }
 
         @Override
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-            ChildViewHolder childViewHolder = null;
-            if (convertView == null) {
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.elv_item_time, null);
-                childViewHolder = new ChildViewHolder(convertView);
-            }else{
-                childViewHolder= (ChildViewHolder) convertView.getTag();
+        public void onBindViewHolder(MyViewHolder holder, int position) {
+            if(holder.viewType==ITEM_VIEW){
+                holder.mTextView.setText("3");
             }
-            childViewHolder.tvTime.setText((String) getChild(groupPosition,childPosition));
 
-            return convertView;
         }
 
         @Override
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+        public int getItemCount() {
+            return mList == null ? 0 : mList.size();
         }
     }
 }

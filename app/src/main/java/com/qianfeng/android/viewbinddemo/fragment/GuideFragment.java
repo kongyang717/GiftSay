@@ -83,21 +83,21 @@ public class GuideFragment extends Fragment {
     }
 
     private void initFragments() {
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
-        mListContents.add(GuideHomeFragment.newInstance("", ""));
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
+        mListContents.add(new GuideHomeFragment());
     }
 
     private void initTitles() {
