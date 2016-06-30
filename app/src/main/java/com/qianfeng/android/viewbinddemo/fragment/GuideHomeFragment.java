@@ -39,7 +39,7 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
     @BindView(R.id.elv_guide_home)
     RecyclerView mRecyclerView;
 
-    private List<GuideHomeContents.DataBean.ItemsBean> mList = new ArrayList<>();
+    private List<GuideHomeContents.DataBean.ItemsBean> mListContents = new ArrayList<>();
     private Context mContext;
     private MyAdapter mAdapter;
 
@@ -77,15 +77,14 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
     @Override
     public void callback(String result) {
         GuideHomeContents bean = new Gson().fromJson(result, GuideHomeContents.class);
-        mList.addAll(bean.getData().getItems());
+
+        mListContents.addAll(bean.getData().getItems());
         mAdapter.notifyDataSetChanged();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         int viewType;
-        @BindView(R.id.tv_guide_home_time)
-        TextView mTextView;
         @BindView(R.id.iv_guide_item_cover)
         ImageView mImageView;
 
@@ -124,18 +123,18 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
         @Override
         public void onBindViewHolder(MyViewHolder holder, int position) {
-            GuideHomeContents.DataBean.ItemsBean info = mList.get(position);
+            GuideHomeContents.DataBean.ItemsBean info = mListContents.get(position);
             if (holder.viewType == ITEM_VIEW) {
-                holder.mTextView.setText("3");
                 Picasso.with(mContext)
                         .load(info.getCover_image_url())
                         .into(holder.mImageView);
+
             }
         }
 
         @Override
         public int getItemCount() {
-            return mList == null ? 0 : mList.size();
+            return mListContents == null ? 0 : mListContents.size();
         }
     }
 }
