@@ -9,10 +9,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.qianfeng.android.viewbinddemo.R;
+import com.qianfeng.android.viewbinddemo.bean.GuideHomeContents;
 import com.qianfeng.android.viewbinddemo.utils.OkHttpUtil;
+import com.qianfeng.android.viewbinddemo.utils.URLConstant;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +28,7 @@ import butterknife.ButterKnife;
 /**
  * 指南页面主Fragment
  */
-public class GuideHomeFragment extends Fragment {
+public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
     public static final int HEAD_VIEW = 0;
     public static final int ITEM_VIEW = 1;
@@ -34,7 +39,7 @@ public class GuideHomeFragment extends Fragment {
     @BindView(R.id.elv_guide_home)
     RecyclerView mRecyclerView;
 
-    private List<String> mList = new ArrayList<>();
+    private List<GuideHomeContents.DataBean.ItemsBean> mList = new ArrayList<>();
     private Context mContext;
     private MyAdapter mAdapter;
 
@@ -66,7 +71,14 @@ public class GuideHomeFragment extends Fragment {
      * 布局初始化完毕，开始刷新数据
      */
     private void refreshData() {
-        //OkHttpUtil.newInstance().url();
+        OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_CONTENTS).callback(this);
+    }
+
+    @Override
+    public void callback(String result) {
+        GuideHomeContents bean = new Gson().fromJson(result, GuideHomeContents.class);
+        mList.addAll(bean.getData().getItems());
+        mAdapter.notifyDataSetChanged();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -74,10 +86,12 @@ public class GuideHomeFragment extends Fragment {
         int viewType;
         @BindView(R.id.tv_guide_home_time)
         TextView mTextView;
+        @BindView(R.id.iv_guide_item_cover)
+        ImageView mImageView;
 
         public MyViewHolder(View itemView, int viewType) {
             super(itemView);
-            this.viewType=viewType;
+            this.viewType = viewType;
             if (viewType == ITEM_VIEW) {
                 ButterKnife.bind(this, itemView);
             }
@@ -92,9 +106,9 @@ public class GuideHomeFragment extends Fragment {
             View view = null;
             //如果viewType是头部视图类型就返回头部视图
             if (viewType == HEAD_VIEW) {
-                view = from.inflate(R.layout.head_guide, parent,false);
+                view = from.inflate(R.layout.head_guide, parent, false);
             } else if (viewType == ITEM_VIEW) {
-                view = from.inflate(R.layout.item_guide,null);
+                view = from.inflate(R.layout.item_guide, parent, false);
             }
             return new MyViewHolder(view, viewType);
         }
@@ -110,10 +124,13 @@ public class GuideHomeFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MyViewHolder holder, int position) {
-            if(holder.viewType==ITEM_VIEW){
+            GuideHomeContents.DataBean.ItemsBean info = mList.get(position);
+            if (holder.viewType == ITEM_VIEW) {
                 holder.mTextView.setText("3");
+                Picasso.with(mContext)
+                        .load(info.getCover_image_url())
+                        .into(holder.mImageView);
             }
-
         }
 
         @Override
