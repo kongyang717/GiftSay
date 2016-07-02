@@ -1,4 +1,4 @@
-package com.qianfeng.android.viewbinddemo.bean;
+package com.qianfeng.android.gifttalk.bean;
 
 import java.util.List;
 

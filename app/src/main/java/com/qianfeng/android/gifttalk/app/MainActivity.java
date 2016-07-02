@@ -1,19 +1,14 @@
-package com.qianfeng.android.viewbinddemo.app;
+package com.qianfeng.android.gifttalk.app;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.system.ErrnoException;
-import android.util.Log;
 import android.widget.RadioGroup;
-
-import com.qianfeng.android.viewbinddemo.R;
-import com.qianfeng.android.viewbinddemo.fragment.GuideFragment;
-import com.qianfeng.android.viewbinddemo.utils.LogUtil;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.qianfeng.android.gifttalk.R;
+import com.qianfeng.android.gifttalk.fragment.GuideFragment;
 
 public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
 

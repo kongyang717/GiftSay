@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/GiftTalk.iml" filepath="$PROJECT_DIR$/GiftTalk.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pulltorefresh/pulltorefresh.iml" filepath="$PROJECT_DIR$/pulltorefresh/pulltorefresh.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GiftSay.iml" filepath="$PROJECT_DIR$/.idea/modules/GiftSay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pulltorefresh/pulltorefresh.iml" filepath="$PROJECT_DIR$/.idea/modules/pulltorefresh/pulltorefresh.iml" />
     </modules>
   </component>
 </project>

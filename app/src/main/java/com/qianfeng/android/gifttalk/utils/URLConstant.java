@@ -1,4 +1,4 @@
-package com.qianfeng.android.viewbinddemo.utils;
+package com.qianfeng.android.gifttalk.utils;
 
 /**
  * 封装了url接口常量

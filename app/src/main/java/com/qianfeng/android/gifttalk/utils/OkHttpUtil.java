@@ -1,4 +1,4 @@
-package com.qianfeng.android.viewbinddemo.utils;
+package com.qianfeng.android.gifttalk.utils;
 
 import android.os.AsyncTask;
 import android.widget.TextView;

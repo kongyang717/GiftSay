@@ -1,4 +1,4 @@
-package com.qianfeng.android.viewbinddemo;
+package com.qianfeng.android.gifttalk;
 
 import org.junit.Test;
 

@@ -1,26 +1,22 @@
-package com.qianfeng.android.viewbinddemo.fragment;
+package com.qianfeng.android.gifttalk.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.qianfeng.android.viewbinddemo.R;
-import com.qianfeng.android.viewbinddemo.bean.GuideHomeContents;
-import com.qianfeng.android.viewbinddemo.utils.LogUtil;
-import com.qianfeng.android.viewbinddemo.utils.OkHttpUtil;
-import com.qianfeng.android.viewbinddemo.utils.URLConstant;
+import com.qianfeng.android.gifttalk.bean.GuideHomeContents;
+import com.qianfeng.android.gifttalk.R;
+import com.qianfeng.android.gifttalk.utils.OkHttpUtil;
+import com.qianfeng.android.gifttalk.utils.URLConstant;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -114,6 +110,11 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
     }
 
+    /**
+     * 获取时间
+     * @param l long类型时间参数（单位：毫秒）
+     * @return
+     */
     private String getTimeString(long l) {
         SimpleDateFormat sdf = new SimpleDateFormat("M月d日 E");
         Date date = new Date(l * 1000);

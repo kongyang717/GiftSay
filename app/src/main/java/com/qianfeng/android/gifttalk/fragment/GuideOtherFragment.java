@@ -1,4 +1,4 @@
-package com.qianfeng.android.viewbinddemo.fragment;
+package com.qianfeng.android.gifttalk.fragment;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.qianfeng.android.viewbinddemo.R;
+import com.qianfeng.android.gifttalk.R;
 
 /**
  * 指南页面其他Fragment

@@ -1,4 +1,4 @@
-package com.qianfeng.android.viewbinddemo.fragment;
+package com.qianfeng.android.gifttalk.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,10 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.gson.Gson;
-import com.qianfeng.android.viewbinddemo.R;
-import com.qianfeng.android.viewbinddemo.bean.GuideTopTabBean;
-import com.qianfeng.android.viewbinddemo.utils.OkHttpUtil;
-import com.qianfeng.android.viewbinddemo.utils.URLConstant;
+import com.qianfeng.android.gifttalk.bean.GuideTopTabBean;
+import com.qianfeng.android.gifttalk.utils.OkHttpUtil;
+import com.qianfeng.android.gifttalk.utils.URLConstant;
+import com.qianfeng.android.gifttalk.R;
 
 import java.util.ArrayList;
 import java.util.List;
