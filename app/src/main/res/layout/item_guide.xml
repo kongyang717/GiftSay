@@ -3,25 +3,45 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
+    <View android:layout_width="match_parent" android:layout_height="5dp"
+          android:background="#dddddd"/>
     <LinearLayout
         android:id="@+id/ll_guide_item_time"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#00ffff"
+        android:layout_height="48dp"
         android:orientation="vertical"
+        android:paddingTop="8dp"
         android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_guide_update_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+        <RelativeLayout android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1">
+            <TextView
+                    android:id="@+id/tv_guide_update_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
+            <View android:layout_width="25dp" android:layout_height="1dp"
+                  android:background="#bbbbbb"
+                  android:layout_toLeftOf="@id/tv_guide_update_time"
+            android:layout_centerVertical="true"/>
+            <View android:layout_width="25dp" android:layout_height="1dp"
+                  android:background="#bbbbbb"
+                  android:layout_toRightOf="@id/tv_guide_update_time"
+                  android:layout_centerVertical="true"/>
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/tv_guide_next_update_time"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="10dp"
+        android:background="#00ff00"
+        android:visibility="gone"/>
+        <View android:layout_width="match_parent"
+              android:layout_height="1dp"
+              android:layout_alignParentBottom="true"
+              android:layout_marginTop="8dp"
+        android:background="#999999"/>
     </LinearLayout>
 
     <ImageView

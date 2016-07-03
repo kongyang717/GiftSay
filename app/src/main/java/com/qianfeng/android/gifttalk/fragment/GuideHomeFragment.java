@@ -10,8 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import com.google.gson.Gson;
 import com.qianfeng.android.gifttalk.bean.GuideHomeContents;
 import com.qianfeng.android.gifttalk.R;
@@ -128,6 +130,8 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         ImageView mImageView;
         @BindView(R.id.ll_guide_item_time)
         LinearLayout mLlTime;
+        @BindView(R.id.tv_guide_update_time)
+        TextView mTvTime;
 
         public MyViewHolder(View itemView, int viewType) {
             super(itemView);
@@ -176,6 +180,8 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
             if (position > 0) {
                 if (mListType.get(position - 1) == HAS_TIME) {
                     holder.mLlTime.setVisibility(View.VISIBLE);
+                    long l=mListContents.get(position-1).getCreated_at();
+                    holder.mTvTime.setText(getTimeString(l));
                 } else {
                     holder.mLlTime.setVisibility(View.GONE);
                 }
