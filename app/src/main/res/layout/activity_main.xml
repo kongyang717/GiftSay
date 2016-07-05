@@ -27,21 +27,25 @@
         <RadioButton
             android:id="@+id/rb_01"
             style="@style/MainBottomTab"
+            android:text="指南"
             android:drawableTop="@drawable/sele_home_buttom_tab_one" />
 
         <RadioButton
             android:id="@+id/rb_02"
             style="@style/MainBottomTab"
+            android:text="热门"
             android:drawableTop="@drawable/sele_home_buttom_tab_two" />
 
         <RadioButton
             android:id="@+id/rb_03"
             style="@style/MainBottomTab"
+            android:text="分类"
             android:drawableTop="@drawable/sele_home_buttom_tab_three" />
 
         <RadioButton
             android:id="@+id/rb_04"
             style="@style/MainBottomTab"
+            android:text="我的"
             android:drawableTop="@drawable/sele_home_buttom_tab_four" />
     </RadioGroup>
 </LinearLayout>

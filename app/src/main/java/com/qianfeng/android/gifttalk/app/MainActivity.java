@@ -9,6 +9,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.qianfeng.android.gifttalk.R;
 import com.qianfeng.android.gifttalk.fragment.GuideFragment;
+import com.qianfeng.android.gifttalk.utils.Display;
 
 public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
 
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Display.init(this);
         ButterKnife.bind(this);
         initData();
         rgHomeTab.check(R.id.rb_01);

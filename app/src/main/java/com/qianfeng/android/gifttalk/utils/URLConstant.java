@@ -11,7 +11,10 @@ public class URLConstant {
      * 指南界面顶部tab标题列表
      */
     public static final String GUIDE_TOP_TAB_TITLES = "http://api.liwushuo.com/v2/channels/preset?gender=1&generation=3";
-    public static final String a = "http://api.liwushuo.com/v2/secondary_banners?gender=1&generation=3";
+    /**
+     * 指南界面头部下面的横向列表
+     */
+    public static final String GUIDE_HOME_HEAD_CONTENTS = "http://api.liwushuo.com/v2/secondary_banners?gender=1&generation=3";
     public static final String b = "http://api.liwushuo.com/v2/banners";
     /**
      * 指南界面内容列表

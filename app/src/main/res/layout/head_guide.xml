@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:background="#00ff00">
-
+    android:layout_height="wrap_content"
+    >
+    <com.bigkoo.convenientbanner.ConvenientBanner
+        android:id="@+id/cb_guide_home_banner"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:background="#ff0000"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_guide_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingBottom="8dp"/>
 </LinearLayout>

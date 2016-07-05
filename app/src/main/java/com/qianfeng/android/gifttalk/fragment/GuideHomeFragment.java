@@ -10,13 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.google.gson.Gson;
-import com.qianfeng.android.gifttalk.bean.GuideHomeContents;
 import com.qianfeng.android.gifttalk.R;
+import com.qianfeng.android.gifttalk.bean.GuideHomeContents;
+import com.qianfeng.android.gifttalk.bean.GuideHomeHead;
+import com.qianfeng.android.gifttalk.utils.Display;
 import com.qianfeng.android.gifttalk.utils.OkHttpUtil;
 import com.qianfeng.android.gifttalk.utils.URLConstant;
 import com.squareup.picasso.Picasso;
@@ -45,11 +46,15 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
      */
     @BindView(R.id.elv_guide_home)
     RecyclerView mRecyclerView;
+    RecyclerView mHeadRecyclerView;
 
     private List<GuideHomeContents.DataBean.ItemsBean> mListContents = new ArrayList<>();
+    private List<GuideHomeHead.DataBean.SecondaryBannersBean> mListHeadContents = new ArrayList<>();
     private List<Integer> mListType = new ArrayList<>();
     private Context mContext;
     private MyAdapter mAdapter;
+    private HeadAdapter mHeadAdapter;
+    private View Headview;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,12 +70,19 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         mContext = getContext();
         //创建视图管理器
         LinearLayoutManager llManager = new LinearLayoutManager(mContext);
+        LinearLayoutManager llManager2 = new LinearLayoutManager(mContext,
+                LinearLayoutManager.HORIZONTAL, false);
         //创建适配器
         mAdapter = new MyAdapter();
+        mHeadAdapter = new HeadAdapter();
         //设置视图管理器
         mRecyclerView.setLayoutManager(llManager);
+        Headview = LayoutInflater.from(mContext).inflate(R.layout.head_guide, null);
+        mHeadRecyclerView = (RecyclerView) Headview.findViewById(R.id.rv_guide_home);
+        mHeadRecyclerView.setLayoutManager(llManager2);
         //设置适配器
         mRecyclerView.setAdapter(mAdapter);
+        mHeadRecyclerView.setAdapter(mHeadAdapter);
         //获取数据
         refreshData();
     }
@@ -80,6 +92,28 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
      */
     private void refreshData() {
         OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_CONTENTS).callback(this);
+        OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_HEAD_CONTENTS).callback(new OkHttpUtil.CallBack() {
+            @Override
+            public void callback(String result) {
+                if (result == null) {
+                    return;
+                }
+                refreshHead(result);
+            }
+        });
+    }
+
+    /**
+     * 刷新头部横向滑动view
+     *
+     * @param result
+     */
+    private void refreshHead(String result) {
+        GuideHomeHead bean = new Gson().fromJson(result, GuideHomeHead.class);
+        List<GuideHomeHead.DataBean.SecondaryBannersBean> list = bean.getData().getSecondary_banners();
+        //刷新适配器
+        mListHeadContents.addAll(list);
+        mHeadAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -114,6 +148,7 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
     /**
      * 获取时间
+     *
      * @param l long类型时间参数（单位：毫秒）
      * @return
      */
@@ -123,7 +158,43 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         return sdf.format(date);
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    class HeadViewHolder extends RecyclerView.ViewHolder {
+
+        ImageView mImageView;
+
+        public HeadViewHolder(View itemView) {
+            super(itemView);
+            mImageView = (ImageView) itemView;
+        }
+    }
+
+    class HeadAdapter extends RecyclerView.Adapter<HeadViewHolder> {
+
+        @Override
+        public HeadViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            ImageView imageView = new ImageView(mContext);
+            int size = Display.getWidth() / 5;
+            RecyclerView.LayoutParams params =
+                    new RecyclerView.LayoutParams(size, size);
+            params.rightMargin = Display.getDpForPix(8);
+            imageView.setLayoutParams(params);
+            return new HeadViewHolder(imageView);
+        }
+
+        @Override
+        public void onBindViewHolder(HeadViewHolder holder, int position) {
+            Picasso.with(mContext)
+                    .load(mListHeadContents.get(position).getImage_url())
+                    .into(holder.mImageView);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mListHeadContents == null ? 0 : mListHeadContents.size();
+        }
+    }
+
+    class BodyViewHolder extends RecyclerView.ViewHolder {
 
         int viewType;
         @BindView(R.id.iv_guide_item_cover)
@@ -133,7 +204,7 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         @BindView(R.id.tv_guide_update_time)
         TextView mTvTime;
 
-        public MyViewHolder(View itemView, int viewType) {
+        public BodyViewHolder(View itemView, int viewType) {
             super(itemView);
             this.viewType = viewType;
             if (viewType == ITEM_VIEW) {
@@ -142,7 +213,7 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         }
     }
 
-    class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
+    class MyAdapter extends RecyclerView.Adapter<BodyViewHolder> {
 
         /**
          * 此方法只会在第一次加载item的时候调用，后面会复用该Holder
@@ -152,16 +223,16 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
          * @return viewholder
          */
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public BodyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater from = LayoutInflater.from(mContext);
             View view = null;
             //如果viewType是头部视图类型就返回头部视图
             if (viewType == HEAD_VIEW) {
-                view = from.inflate(R.layout.head_guide, parent, false);
+                view = Headview;
             } else if (viewType == ITEM_VIEW) {
                 view = from.inflate(R.layout.item_guide, parent, false);
             }
-            return new MyViewHolder(view, viewType);
+            return new BodyViewHolder(view, viewType);
         }
 
         @Override
@@ -174,13 +245,13 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
+        public void onBindViewHolder(BodyViewHolder holder, int position) {
             GuideHomeContents.DataBean.ItemsBean info = mListContents.get(position);
             //如果类型为有时间就显示时间布局
             if (position > 0) {
                 if (mListType.get(position - 1) == HAS_TIME) {
                     holder.mLlTime.setVisibility(View.VISIBLE);
-                    long l=mListContents.get(position-1).getCreated_at();
+                    long l = mListContents.get(position - 1).getCreated_at();
                     holder.mTvTime.setText(getTimeString(l));
                 } else {
                     holder.mLlTime.setVisibility(View.GONE);
