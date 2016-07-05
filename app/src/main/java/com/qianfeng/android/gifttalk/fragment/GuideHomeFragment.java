@@ -13,8 +13,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bigkoo.convenientbanner.ConvenientBanner;
+import com.bigkoo.convenientbanner.holder.CBViewHolderCreator;
+import com.bigkoo.convenientbanner.holder.Holder;
 import com.google.gson.Gson;
 import com.qianfeng.android.gifttalk.R;
+import com.qianfeng.android.gifttalk.bean.GuideHomeBanner;
 import com.qianfeng.android.gifttalk.bean.GuideHomeContents;
 import com.qianfeng.android.gifttalk.bean.GuideHomeHead;
 import com.qianfeng.android.gifttalk.utils.Display;
@@ -24,8 +28,11 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,17 +57,22 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
     private List<GuideHomeContents.DataBean.ItemsBean> mListContents = new ArrayList<>();
     private List<GuideHomeHead.DataBean.SecondaryBannersBean> mListHeadContents = new ArrayList<>();
+    private List<GuideHomeBanner.DataBean.BannersBean> mListHeadBanner = new ArrayList<>();
     private List<Integer> mListType = new ArrayList<>();
     private Context mContext;
     private MyAdapter mAdapter;
     private HeadAdapter mHeadAdapter;
     private View Headview;
+    private ConvenientBanner mConvenientBanner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_guide_home, container, false);
         ButterKnife.bind(this, view);
+        Headview = inflater.inflate(R.layout.head_guide, null);
+        mHeadRecyclerView = (RecyclerView) Headview.findViewById(R.id.rv_guide_home);
+        mConvenientBanner = (ConvenientBanner) Headview.findViewById(R.id.cb_guide_home_banner);
         return view;
     }
 
@@ -77,30 +89,68 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         mHeadAdapter = new HeadAdapter();
         //设置视图管理器
         mRecyclerView.setLayoutManager(llManager);
-        Headview = LayoutInflater.from(mContext).inflate(R.layout.head_guide, null);
-        mHeadRecyclerView = (RecyclerView) Headview.findViewById(R.id.rv_guide_home);
         mHeadRecyclerView.setLayoutManager(llManager2);
         //设置适配器
         mRecyclerView.setAdapter(mAdapter);
         mHeadRecyclerView.setAdapter(mHeadAdapter);
+        mConvenientBanner.setPages(new CBViewHolderCreator<HeadPager>() {
+            @Override
+            public HeadPager createHolder() {
+                return new HeadPager();
+            }
+        }, mListHeadBanner).setPageIndicator(new int[]{R.drawable.btn_check_disabled_nightmode,
+                R.drawable.btn_check_normal});
         //获取数据
         refreshData();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mConvenientBanner.startTurning(2000);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mConvenientBanner.stopTurning();
     }
 
     /**
      * 布局初始化完毕，开始刷新数据
      */
     private void refreshData() {
-        OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_CONTENTS).callback(this);
-        OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_HEAD_CONTENTS).callback(new OkHttpUtil.CallBack() {
-            @Override
-            public void callback(String result) {
-                if (result == null) {
-                    return;
+        if (mListContents.size() == 0) {
+            OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_CONTENTS).callback(this);
+        }
+        if (mListHeadContents.size() == 0) {
+            OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_HEAD_CONTENTS).callback(new OkHttpUtil.CallBack() {
+                @Override
+                public void callback(String result) {
+                    if (result == null) {
+                        return;
+                    }
+                    refreshHead(result);
                 }
-                refreshHead(result);
-            }
-        });
+            });
+        }
+        if (mListHeadBanner.size() == 0) {
+            OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_HEAD_BANNER).callback(new OkHttpUtil.CallBack() {
+                @Override
+                public void callback(String result) {
+                    if (result == null) {
+                        return;
+                    }
+                    refreshBanner(result);
+                }
+            });
+        }
+    }
+
+    private void refreshBanner(String result) {
+        GuideHomeBanner bean = new Gson().fromJson(result, GuideHomeBanner.class);
+        mListHeadBanner.addAll(bean.getData().getBanners());
+        mConvenientBanner.notifyDataSetChanged();
     }
 
     /**
@@ -110,9 +160,8 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
      */
     private void refreshHead(String result) {
         GuideHomeHead bean = new Gson().fromJson(result, GuideHomeHead.class);
-        List<GuideHomeHead.DataBean.SecondaryBannersBean> list = bean.getData().getSecondary_banners();
         //刷新适配器
-        mListHeadContents.addAll(list);
+        mListHeadContents.addAll(bean.getData().getSecondary_banners());
         mHeadAdapter.notifyDataSetChanged();
     }
 
@@ -153,9 +202,27 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
      * @return
      */
     private String getTimeString(long l) {
-        SimpleDateFormat sdf = new SimpleDateFormat("M月d日 E");
+        SimpleDateFormat sdf = new SimpleDateFormat("M月d日 E", Locale.getDefault());
         Date date = new Date(l * 1000);
         return sdf.format(date);
+    }
+
+    class HeadPager implements Holder<GuideHomeBanner.DataBean.BannersBean> {
+
+        private ImageView imageView;
+
+        @Override
+        public View createView(Context context) {
+            imageView = new ImageView(context);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            return imageView;
+        }
+
+        @Override
+        public void UpdateUI(Context context, int position, GuideHomeBanner.DataBean.BannersBean data) {
+            Picasso.with(context)
+                    .load(data.getImage_url()).into(imageView);
+        }
     }
 
     class HeadViewHolder extends RecyclerView.ViewHolder {
@@ -203,6 +270,8 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
         LinearLayout mLlTime;
         @BindView(R.id.tv_guide_update_time)
         TextView mTvTime;
+        @BindView(R.id.tv_guide_next_update_time)
+        TextView mTvNextTime;
 
         public BodyViewHolder(View itemView, int viewType) {
             super(itemView);
@@ -214,6 +283,8 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
     }
 
     class MyAdapter extends RecyclerView.Adapter<BodyViewHolder> {
+
+        int[] time = new int[]{8, 11, 17, 20};
 
         /**
          * 此方法只会在第一次加载item的时候调用，后面会复用该Holder
@@ -250,6 +321,11 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
             //如果类型为有时间就显示时间布局
             if (position > 0) {
                 if (mListType.get(position - 1) == HAS_TIME) {
+                    if (position == 1) {
+                        holder.mTvNextTime.setVisibility(View.VISIBLE);
+                        String string = "下次更新 " + getNextTime();
+                        holder.mTvNextTime.setText(string);
+                    }
                     holder.mLlTime.setVisibility(View.VISIBLE);
                     long l = mListContents.get(position - 1).getCreated_at();
                     holder.mTvTime.setText(getTimeString(l));
@@ -262,6 +338,28 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
                         .load(info.getCover_image_url())
                         .into(holder.mImageView);
             }
+        }
+
+        /**
+         * 获取下一次更新数据时间
+         * @return
+         */
+        private String getNextTime() {
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            int curTime = calendar.get(Calendar.HOUR_OF_DAY);
+            int index = 0;
+            int length = time.length;
+            for (int i = length - 1; i >= 0; i--) {
+                if (curTime >= time[i]) {
+                    index = ++i;
+                    break;
+                }
+            }
+            if (index >= length) {
+                index -= length;
+            }
+            return time[index]+":00";
         }
 
         @Override

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ll_guide_item_time"
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:orientation="vertical"
-    android:paddingTop="8dp"
+    android:paddingTop="10dp"
     android:visibility="gone"
     tools:showIn="@layout/item_guide">
 
@@ -21,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:textSize="12dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp" />
 
@@ -42,14 +42,16 @@
     <TextView
         android:id="@+id/tv_guide_next_update_time"
         android:layout_width="wrap_content"
-        android:layout_height="10dp"
-        android:background="#00ff00"
+        android:layout_height="12dp"
+        android:layout_gravity="center_horizontal"
+        android:textSize="10dp"
+        android:textColor="#FD2D47"
         android:visibility="gone" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="8dp"
-        android:background="#999999" />
+        android:layout_marginTop="10dp"
+        android:background="#dddddd" />
 </LinearLayout>
