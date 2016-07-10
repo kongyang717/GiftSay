@@ -1,5 +1,6 @@
 package com.qianfeng.android.gifttalk.utils;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
@@ -41,10 +42,10 @@ public class OkHttpUtil {
          *
          * @param result 获取到的String字符串
          */
-        void callback(String result);
+        void callback(final String result);
     }
 
-    public static class OkHttpTask extends AsyncTask<String, Integer, String> {
+    public static final class OkHttpTask extends AsyncTask<String, Integer, String> {
 
         /**
          * url地址正则表达式
@@ -53,10 +54,22 @@ public class OkHttpUtil {
                 "[a-zA-Z]{2,6})|([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}))" +
                 "(:[0-9]{1,4})*(/[a-zA-Z0-9\\&%_\\./-~-]*)?";
         /**
+         * 上下文
+         */
+        private Context context;
+        /**
          * post请求提交的数据
          */
         private FormBody formBody;
+
+        /**
+         * 回调接口
+         */
         private CallBack callback;
+
+        //构造器
+        public OkHttpTask() {
+        }
 
         /**
          * 启动子线程获取网络数据
@@ -96,20 +109,44 @@ public class OkHttpUtil {
             return this;
         }
 
+        /**
+         * 数据本地化
+         *
+         * @param context 上下文
+         * @return this
+         */
+        public OkHttpTask local(Context context) {
+            this.context = context;
+            return this;
+        }
+
         @Override
         protected String doInBackground(String... params) {
-            Request.Builder builder = new Request.Builder().url(params[0]);
+            String url = params[0];
+            Request.Builder builder = new Request.Builder().url(url);
             if (formBody != null) {
                 builder.post(formBody);
             }
             Request request = builder.build();
+            String result = null;
             try {
                 Response response = okHttpClient.newCall(request).execute();
-                return response.body().string();
+                result = response.body().string();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            if (context != null) {
+                try {
+                    if (result == null) {
+                        result = FileUtil.readByUrl(context, url);
+                    } else {
+                        FileUtil.saveByUrl(context, url, result);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return result;
         }
 
         @Override

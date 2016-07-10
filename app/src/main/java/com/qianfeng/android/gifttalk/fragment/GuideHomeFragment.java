@@ -24,6 +24,8 @@ import com.qianfeng.android.gifttalk.bean.GuideHomeHead;
 import com.qianfeng.android.gifttalk.utils.Display;
 import com.qianfeng.android.gifttalk.utils.OkHttpUtil;
 import com.qianfeng.android.gifttalk.utils.URLConstant;
+import com.qianfeng.android.pulltorefresh.PullToRefreshBase;
+import com.qianfeng.android.pulltorefresh.ui.PullToRefreshRecycleView;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -40,68 +42,91 @@ import butterknife.ButterKnife;
 /**
  * 指南页面主Fragment
  */
-public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
+public class GuideHomeFragment extends Fragment implements
+        PullToRefreshBase.OnRefreshListener<RecyclerView> {
 
     public static final int HEAD_VIEW = 0;
     public static final int ITEM_VIEW = 1;
 
     public static final int HAS_TIME = 0;
     public static final int NO_TIME = 1;
+    //判断是刷新还是加载更多
+    private boolean isRefresh;
+    private RecyclerView mRecyclerView;
+    private RecyclerView mHeadRecyclerView;
+    private View Headview;
+    private ConvenientBanner mConvenientBanner;
+    private PullToRefreshRecycleView mContentView;
 
-    /**
-     * fragment 主控件，包含了整个界面的内容（头部View和List列表）
-     */
-    @BindView(R.id.elv_guide_home)
-    RecyclerView mRecyclerView;
-    RecyclerView mHeadRecyclerView;
-
-    private List<GuideHomeContents.DataBean.ItemsBean> mListContents = new ArrayList<>();
+    private List<GuideHomeContents.DataBean.ItemsBean> mListBody = new ArrayList<>();
     private List<GuideHomeHead.DataBean.SecondaryBannersBean> mListHeadContents = new ArrayList<>();
     private List<GuideHomeBanner.DataBean.BannersBean> mListHeadBanner = new ArrayList<>();
     private List<Integer> mListType = new ArrayList<>();
+
     private Context mContext;
+
     private MyAdapter mAdapter;
     private HeadAdapter mHeadAdapter;
-    private View Headview;
-    private ConvenientBanner mConvenientBanner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_guide_home, container, false);
-        ButterKnife.bind(this, view);
-        Headview = inflater.inflate(R.layout.head_guide, null);
+        mContext = getContext();
+        mContentView = new PullToRefreshRecycleView(mContext);
+        mRecyclerView = mContentView.getRefreshableView();
+        Headview = inflater.inflate(R.layout.head_guide, container,false);
         mHeadRecyclerView = (RecyclerView) Headview.findViewById(R.id.rv_guide_home);
         mConvenientBanner = (ConvenientBanner) Headview.findViewById(R.id.cb_guide_home_banner);
-        return view;
+        return mContentView;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mContext = getContext();
-        //创建视图管理器
-        LinearLayoutManager llManager = new LinearLayoutManager(mContext);
-        LinearLayoutManager llManager2 = new LinearLayoutManager(mContext,
-                LinearLayoutManager.HORIZONTAL, false);
-        //创建适配器
-        mAdapter = new MyAdapter();
-        mHeadAdapter = new HeadAdapter();
-        //设置视图管理器
-        mRecyclerView.setLayoutManager(llManager);
-        mHeadRecyclerView.setLayoutManager(llManager2);
-        //设置适配器
-        mRecyclerView.setAdapter(mAdapter);
-        mHeadRecyclerView.setAdapter(mHeadAdapter);
+        setupBodyRecycerView();//设置主内容滑动视图
+        setupHeadRecycerView();//设置头部横向滑动视图
+        setupHeadConvenientBanner();//设置头部广告牌视图
+        //刷新数据
+        mContentView.setOnRefreshListener(this);
+        if (mListHeadBanner.size() == 0) {
+            doRefreshHeadBanner();
+        }
+        if (mListHeadContents.size() == 0) {
+            doRefreshHeadLands();
+        }
+        if (mListBody.size() == 0) {
+            doRefreshBody();
+        }
+    }
+
+    private void setupHeadConvenientBanner() {
         mConvenientBanner.setPages(new CBViewHolderCreator<HeadPager>() {
             @Override
             public HeadPager createHolder() {
                 return new HeadPager();
             }
-        }, mListHeadBanner).setPageIndicator(new int[]{R.drawable.btn_check_disabled_nightmode,
-                R.drawable.btn_check_normal});
-        //获取数据
-        refreshData();
+        }, mListHeadBanner)
+                .setPageIndicator(new int[]{R.drawable.btn_check_disabled_nightmode,
+                        R.drawable.btn_check_normal});
+    }
+
+    private void setupHeadRecycerView() {
+        LinearLayoutManager llManager2 = new LinearLayoutManager(mContext,
+                LinearLayoutManager.HORIZONTAL, false);
+        mHeadAdapter = new HeadAdapter();
+        mHeadRecyclerView.setLayoutManager(llManager2);
+        mHeadRecyclerView.setAdapter(mHeadAdapter);
+    }
+
+    private void setupBodyRecycerView() {
+        //创建视图管理器
+        LinearLayoutManager llManager = new LinearLayoutManager(mContext);
+        //创建适配器
+        mAdapter = new MyAdapter();
+        //设置视图管理器
+        mRecyclerView.setLayoutManager(llManager);
+        //设置适配器
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -117,61 +142,90 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
     }
 
     /**
-     * 布局初始化完毕，开始刷新数据
+     * 去刷新头部广告视图
      */
-    private void refreshData() {
-        if (mListContents.size() == 0) {
-            OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_CONTENTS).callback(this);
-        }
-        if (mListHeadContents.size() == 0) {
-            OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_HEAD_CONTENTS).callback(new OkHttpUtil.CallBack() {
-                @Override
-                public void callback(String result) {
-                    if (result == null) {
-                        return;
+    private void doRefreshHeadBanner() {
+        OkHttpUtil.newInstance()
+                .local(mContext)
+                .start(URLConstant.GUIDE_HOME_HEAD_BANNER)
+                .callback(new OkHttpUtil.CallBack() {
+                    @Override
+                    public void callback(String result) {
+                        if (result != null) {
+                            refreshBanner(result);
+                        }
                     }
-                    refreshHead(result);
-                }
-            });
-        }
-        if (mListHeadBanner.size() == 0) {
-            OkHttpUtil.newInstance().start(URLConstant.GUIDE_HOME_HEAD_BANNER).callback(new OkHttpUtil.CallBack() {
-                @Override
-                public void callback(String result) {
-                    if (result == null) {
-                        return;
+                });
+    }
+
+    /**
+     * 去刷新头部横向list视图
+     */
+    private void doRefreshHeadLands() {
+        OkHttpUtil.newInstance()
+                .local(mContext)
+                .start(URLConstant.GUIDE_HOME_HEAD_CONTENTS)
+                .callback(new OkHttpUtil.CallBack() {
+                    @Override
+                    public void callback(String result) {
+                        if (result != null) {
+                            refreshHead(result);
+                        }
                     }
-                    refreshBanner(result);
-                }
-            });
-        }
+                });
+    }
+
+    /**
+     * 去刷新主要内容视图
+     */
+    private void doRefreshBody() {
+        OkHttpUtil.newInstance()
+                .local(mContext)
+                .start(URLConstant.GUIDE_HOME_CONTENTS)
+                .callback(new OkHttpUtil.CallBack() {
+                    @Override
+                    public void callback(String result) {
+                        if (result != null) {
+                            refreshBody(result);
+                        }
+                    }
+                });
     }
 
     private void refreshBanner(String result) {
         GuideHomeBanner bean = new Gson().fromJson(result, GuideHomeBanner.class);
+        if (isRefresh) {
+            mListHeadBanner.clear();
+        }
         mListHeadBanner.addAll(bean.getData().getBanners());
         mConvenientBanner.notifyDataSetChanged();
     }
 
     /**
      * 刷新头部横向滑动view
-     *
-     * @param result
      */
     private void refreshHead(String result) {
         GuideHomeHead bean = new Gson().fromJson(result, GuideHomeHead.class);
         //刷新适配器
+        if (isRefresh) {
+            mListHeadContents.clear();
+        }
         mListHeadContents.addAll(bean.getData().getSecondary_banners());
         mHeadAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void callback(String result) {
+    /**
+     * 刷新主界面滑动view
+     */
+    public void refreshBody(String result) {
         GuideHomeContents bean = new Gson().fromJson(result, GuideHomeContents.class);
         List<GuideHomeContents.DataBean.ItemsBean> list = bean.getData().getItems();
         groupItem(list);
         //刷新适配器
-        mListContents.addAll(list);
+        if (isRefresh) {
+            mListBody.clear();
+        }
+        mListBody.addAll(list);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -199,12 +253,25 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
      * 获取时间
      *
      * @param l long类型时间参数（单位：毫秒）
-     * @return
+     * @return 格式化的时间字符串
      */
     private String getTimeString(long l) {
         SimpleDateFormat sdf = new SimpleDateFormat("M月d日 E", Locale.getDefault());
         Date date = new Date(l * 1000);
         return sdf.format(date);
+    }
+
+    @Override
+    public void onPullDownToRefresh(PullToRefreshBase<RecyclerView> refreshView) {
+        isRefresh = true;
+        doRefreshBody();
+        doRefreshHeadLands();
+        doRefreshHeadBanner();
+    }
+
+    @Override
+    public void onPullUpToRefresh(PullToRefreshBase<RecyclerView> refreshView) {
+        isRefresh = false;
     }
 
     class HeadPager implements Holder<GuideHomeBanner.DataBean.BannersBean> {
@@ -317,7 +384,7 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
         @Override
         public void onBindViewHolder(BodyViewHolder holder, int position) {
-            GuideHomeContents.DataBean.ItemsBean info = mListContents.get(position);
+            GuideHomeContents.DataBean.ItemsBean info = mListBody.get(position);
             //如果类型为有时间就显示时间布局
             if (position > 0) {
                 if (mListType.get(position - 1) == HAS_TIME) {
@@ -327,7 +394,7 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
                         holder.mTvNextTime.setText(string);
                     }
                     holder.mLlTime.setVisibility(View.VISIBLE);
-                    long l = mListContents.get(position - 1).getCreated_at();
+                    long l = mListBody.get(position - 1).getCreated_at();
                     holder.mTvTime.setText(getTimeString(l));
                 } else {
                     holder.mLlTime.setVisibility(View.GONE);
@@ -342,7 +409,8 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
 
         /**
          * 获取下一次更新数据时间
-         * @return
+         *
+         * @return 下次更新数据时间
          */
         private String getNextTime() {
             Calendar calendar = new GregorianCalendar();
@@ -359,12 +427,12 @@ public class GuideHomeFragment extends Fragment implements OkHttpUtil.CallBack {
             if (index >= length) {
                 index -= length;
             }
-            return time[index]+":00";
+            return time[index] + ":00";
         }
 
         @Override
         public int getItemCount() {
-            return mListContents == null ? 0 : mListContents.size();
+            return mListBody == null ? 0 : mListBody.size();
         }
     }
 }

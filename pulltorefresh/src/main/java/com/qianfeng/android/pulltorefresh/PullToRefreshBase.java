@@ -21,7 +21,8 @@ import com.qianfeng.android.pulltorefresh.ILoadingLayout.State;
  * @since 2013-7-29
  * @param <T>
  */
-public abstract class PullToRefreshBase<T extends View> extends LinearLayout implements IPullToRefresh<T> {
+public abstract class PullToRefreshBase<T extends View>
+        extends LinearLayout implements IPullToRefresh<T> {
     /**
      * 定义了下拉刷新和上拉加载更多的接口。
      * 
@@ -177,12 +178,12 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
         }
         
         int pLeft = getPaddingLeft();
-        int pTop = getPaddingTop();
+        //int pTop = getPaddingTop();
         int pRight = getPaddingRight();
-        int pBottom = getPaddingBottom();
-        
-        pTop = -headerHeight;
-        pBottom = -footerHeight;
+        //int pBottom = getPaddingBottom();
+
+        int pTop = -headerHeight;
+        int pBottom = -footerHeight;
         
         setPadding(pLeft, pTop, pRight, pBottom);
     }
@@ -221,20 +222,22 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
     
     @Override
     public final boolean onInterceptTouchEvent(MotionEvent event) {
+        //如果是否截断事件为false，则返回false
         if (!isInterceptTouchEventEnabled()) {
             return false;
         }
-        
+        //如果上拉加载和下拉刷新都为false，则返回false
         if (!isPullLoadEnabled() && !isPullRefreshEnabled()) {
             return false;
         }
         
         final int action = event.getAction();
+        //如果事件类型为cancel或者up则返回false
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
             mIsHandledTouchEvent = false;
             return false;
         }
-        
+        //如果事件类型为down并且是否消费时间为真则返回true
         if (action != MotionEvent.ACTION_DOWN && mIsHandledTouchEvent) {
             return true;
         }
@@ -276,7 +279,7 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout imp
         default:
             break;
         }
-        
+
         return mIsHandledTouchEvent;
     }
 

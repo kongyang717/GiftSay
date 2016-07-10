@@ -1,9 +1,13 @@
 package com.qianfeng.android.gifttalk.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -13,10 +17,12 @@ import android.view.ViewGroup;
 
 import com.google.gson.Gson;
 import com.qianfeng.android.gifttalk.bean.GuideTopTabBean;
+import com.qianfeng.android.gifttalk.utils.FileUtil;
 import com.qianfeng.android.gifttalk.utils.OkHttpUtil;
 import com.qianfeng.android.gifttalk.utils.URLConstant;
 import com.qianfeng.android.gifttalk.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +57,10 @@ public class GuideFragment extends Fragment implements OkHttpUtil.CallBack {
         mAdapter = new MyFragmentPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
-        OkHttpUtil.newInstance().start(URLConstant.GUIDE_TOP_TAB_TITLES).callback(this);
+        OkHttpUtil.newInstance()
+                .local(getContext())
+                .start(URLConstant.GUIDE_TOP_TAB_TITLES)
+                .callback(this);
     }
 
     /**
@@ -60,8 +69,8 @@ public class GuideFragment extends Fragment implements OkHttpUtil.CallBack {
      * @param result 获取到的String字符串
      */
     @Override
-    public void callback(String result) {
-        if(result == null){
+    public void callback(final String result) {
+        if(result ==null){
             return;
         }
         GuideTopTabBean bean = new Gson().fromJson(result, GuideTopTabBean.class);
@@ -69,6 +78,7 @@ public class GuideFragment extends Fragment implements OkHttpUtil.CallBack {
             mListTitles.add(c.getName());
         }
         mAdapter.notifyDataSetChanged();
+
     }
 
     class MyFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -88,7 +98,7 @@ public class GuideFragment extends Fragment implements OkHttpUtil.CallBack {
 
         @Override
         public int getCount() {
-            return mListTitles == null ? null : mListTitles.size();
+            return mListTitles == null ? 0 : mListTitles.size();
         }
 
         @Override

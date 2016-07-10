@@ -4,15 +4,28 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tl_guide_tab"
+            app:tabMode="scrollable"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="center"
+            android:src="@drawable/arrow_index_down"/>
+    </LinearLayout>
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tl_guide_tab"
-        app:tabMode="scrollable"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_guide_content"
         android:layout_height="match_parent"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        android:background="#eeeeee"/>
 </LinearLayout>
